@@ -5,13 +5,13 @@ public class GamePlayScript : MonoBehaviour {
 
 	public GameObject prefabFigure;
 
-	public int matrixHeight = 10;
-	public int matrixWidth = 10;
-	public int noLessPR = 20;
+	public int matrixHeight = 8;
+	public int matrixWidth = 3;
+	public int noLessPR = 3;
 	public int numFigures = 5;
-	public int chancePR = 3;
+	public int chancePR = 100;
 	public int afterSecondsHint = 3;
-	public int target = 100;
+	public int target = 1000;
 
 	private int[, ] fieldMatrix;
 	private int[, ] removalMatrix;
@@ -251,6 +251,7 @@ public class GamePlayScript : MonoBehaviour {
 
 	private void mixField () {
 		int scorePR = 0;
+		int attempts = 0;
 
 		while (true) {
 			scorePR = 0;
@@ -263,7 +264,9 @@ public class GamePlayScript : MonoBehaviour {
 					}
 				}
 			}
+			attempts++;
 			if (scorePR > noLessPR) break;
+			if (200 > attempts) break;
 		}
 	}
 	private void TransferMatrixToScreen () {
@@ -287,8 +290,6 @@ public class GamePlayScript : MonoBehaviour {
 	}
 	private void ShowHint () {
 		int?[] checkPR;
-		bool stopCycles = false;
-		while (true) {
 			for (int i = 0; i < matrixHeight; i++) {
 				for (int j = 0; j < matrixWidth; j++) {
 					checkPR = CheckPossibleRow (fieldMatrix, i, j);
@@ -298,15 +299,11 @@ public class GamePlayScript : MonoBehaviour {
 							objsFigures[i, j].GetComponent<Animation> ().Play ("HintAnim");
 							objsFigures[i + checkPR[0].Value, j + checkPR[1].Value].GetComponent<Animation> ().Play ("HintAnim");
 							objsFigures[i + checkPR[2].Value, j + checkPR[3].Value].GetComponent<Animation> ().Play ("HintAnim");
-							stopCycles = true;
-							break;
+							return;
 						}
 					}
 				}
-				if (stopCycles) break;
 			}
-			if (stopCycles) break;
-		}
 
 	}
 

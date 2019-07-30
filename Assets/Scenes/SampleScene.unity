@@ -1708,10 +1708,10 @@ MonoBehaviour:
   prefabFigure: {fileID: 1487696436006156, guid: 84889b6564a5de443b8d3f8e1814c04d,
     type: 2}
   matrixHeight: 8
-  matrixWidth: 8
+  matrixWidth: 3
   noLessPR: 20
   numFigures: 5
-  chancePR: 3
+  chancePR: 100
   afterSecondsHint: 3
   target: 101
   scoreText: {fileID: 1595350684}
