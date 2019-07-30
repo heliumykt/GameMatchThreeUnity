@@ -5,13 +5,13 @@ public class GamePlayScript : MonoBehaviour {
 
 	public GameObject prefabFigure;
 
-	public int matrixHeight = 15;
-	public int matrixWidth = 15;
+	public int matrixHeight = 10;
+	public int matrixWidth = 10;
 	public int noLessPR = 20;
 	public int numFigures = 5;
 	public int chancePR = 3;
-	public int afterSecondsHint = 10;
-	public int target = 50;
+	public int afterSecondsHint = 3;
+	public int target = 100;
 
 	private int[, ] fieldMatrix;
 	private int[, ] removalMatrix;
@@ -31,6 +31,7 @@ public class GamePlayScript : MonoBehaviour {
 
 	public Text scoreText;
 	private int scoreGame;
+	public Text targetText;
 
 	public GameObject finishGame;
 	private bool endGame = true;
@@ -38,6 +39,8 @@ public class GamePlayScript : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
+		targetText.text = "TARGET: " + target.ToString ();
+		
 		fieldMatrix = new int[matrixHeight, matrixWidth];
 		removalMatrix = new int[matrixHeight, matrixWidth];
 		objsFigures = new GameObject[matrixHeight, matrixWidth];

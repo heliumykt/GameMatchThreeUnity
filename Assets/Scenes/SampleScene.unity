@@ -1043,7 +1043,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 'TARGET: 50'
+  m_Text: 'TARGET: 100'
 --- !u!222 &1304230660
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1712,9 +1712,10 @@ MonoBehaviour:
   noLessPR: 20
   numFigures: 5
   chancePR: 3
-  afterSecondsHint: 10
-  target: 50
+  afterSecondsHint: 3
+  target: 101
   scoreText: {fileID: 1595350684}
+  targetText: {fileID: 1304230659}
   finishGame: {fileID: 96979058}
   pauseButton: {fileID: 9845989}
 --- !u!1 &2068542305
