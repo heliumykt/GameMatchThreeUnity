@@ -1707,12 +1707,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefabFigure: {fileID: 1487696436006156, guid: 84889b6564a5de443b8d3f8e1814c04d,
     type: 2}
-  matrixHeight: 9
-  matrixWidth: 9
+  matrixHeight: 8
+  matrixWidth: 8
   noLessPR: 20
   numFigures: 5
-  chancePR: 2
-  afterSecondsHint: 3
+  chancePR: 3
+  afterSecondsHint: 10
   target: 50
   scoreText: {fileID: 1595350684}
   finishGame: {fileID: 96979058}

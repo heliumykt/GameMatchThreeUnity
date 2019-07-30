@@ -69,8 +69,8 @@ public class GamePlayScript : MonoBehaviour {
 					SoundManagerScript.PlaySound ("applause");
 					finishGame.SetActive (true);
 					Time.timeScale = 0;
-					pauseButton.GetComponent<Button>().enabled = false;
-					gameObject.GetComponent<GamePlayScript>().enabled = false;
+					pauseButton.GetComponent<Button> ().enabled = false;
+					gameObject.GetComponent<GamePlayScript> ().enabled = false;
 				}
 			}
 		}
@@ -157,17 +157,17 @@ public class GamePlayScript : MonoBehaviour {
 		return null;
 	}
 
-	int[, ] GenerationField (int[, ] array, int n, int m, int numFigures) {
+	int[, ] GenerationField (int[, ] array, int n, int m, int numnumFigures) {
 		for (int i = 0; i < n; i++) {
 			for (int j = 0; j < m; j++) {
-				array[i, j] = CreateRandomNumWithException (1, numFigures);
-
-				if (ItemMatching (array, i, j, i, j - 1) && ItemMatching (array, i, j, i, j - 2)) {
+				if (ItemMatching (array, i - 1, j, i - 2, j) && ItemMatching (array, i, j - 1, i, j - 2))
+					array[i, j] = CreateRandomNumWithException (1, numFigures, array[i - 1, j], array[i, j - 1]);
+				else if (ItemMatching (array, i, j - 1, i, j - 2))
 					array[i, j] = CreateRandomNumWithException (1, numFigures, array[i, j - 1]);
-				} else if (ItemMatching (array, i, j, i - 1, j) && ItemMatching (array, i, j, i - 2, j)) {
+				else if (ItemMatching (array, i - 1, j, i - 2, j))
 					array[i, j] = CreateRandomNumWithException (1, numFigures, array[i - 1, j]);
-				}
-
+				else
+					array[i, j] = CreateRandomNumWithException (1, numFigures);
 			}
 		}
 		return array;
@@ -355,5 +355,7 @@ public class GamePlayScript : MonoBehaviour {
 			}
 		}
 	}
+
+
 
 }
