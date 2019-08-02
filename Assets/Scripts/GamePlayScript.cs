@@ -10,7 +10,7 @@ public class GamePlayScript : MonoBehaviour {
 	public int noLessPR = 3;
 	public int numFigures = 5;
 	public int chancePR = 100;
-	public int afterSecondsHint = 3;
+	public float afterSecondsHint = 3f;
 	public int target = 1000;
 
 	private int[, ] fieldMatrix;
@@ -18,7 +18,6 @@ public class GamePlayScript : MonoBehaviour {
 	private GameObject[, ] objsFigures;
 
 	private float sizeFigure = 0.3f;
-	private float timeCount;
 
 	private Vector3 startPositionMouse;
 	private Vector3 positionDeviationMouse;
@@ -37,46 +36,57 @@ public class GamePlayScript : MonoBehaviour {
 	private bool endGame = true;
 	public GameObject pauseButton;
 
+	private int numberOfAttempts = 100;
+
 	// Use this for initialization
 	void Start () {
 		targetText.text = "TARGET: " + target.ToString ();
-		
+
 		fieldMatrix = new int[matrixHeight, matrixWidth];
 		removalMatrix = new int[matrixHeight, matrixWidth];
 		objsFigures = new GameObject[matrixHeight, matrixWidth];
 
 		mixField ();
 		TransferMatrixToScreen ();
+
+		InvokeRepeating ("ShowHint", afterSecondsHint, afterSecondsHint);
 	}
 
 	// Update is called once per frame
 	void Update () {
-		timeCount += Time.deltaTime;
-		if (timeCount > afterSecondsHint) {
-			ShowHint ();
-			timeCount = 0f;
-		}
 
-		if (DestroyMatchThree (fieldMatrix, removalMatrix, matrixHeight, matrixWidth)) {
-			RaiseZeros (fieldMatrix, matrixHeight, matrixWidth);
-			scoreGame += AddFigures (fieldMatrix, matrixHeight, matrixWidth, numFigures, chancePR);
-			scoreText.text = "Score: " + scoreGame.ToString ();
-			TransferMatrixToScreen ();
+		if (Input.GetMouseButtonDown (0)) {
+			startPositionMouse = Input.mousePosition;
 		}
-		LeftClick ();
+		if (Input.GetMouseButtonUp (0)) {
 
-		if (scoreGame >= target) {
-			{
-				if (endGame) {
-					endGame = false;
-					SoundManagerScript.PlaySound ("applause");
-					finishGame.SetActive (true);
-					Time.timeScale = 0;
-					pauseButton.GetComponent<Button> ().enabled = false;
-					gameObject.GetComponent<GamePlayScript> ().enabled = false;
+			ray = Camera.main.ScreenPointToRay (startPositionMouse);
+
+			if (Physics.Raycast (ray, out hit)) { //получим нажатый объект и ее индексы на матрице i j
+				i_Button = hit.collider.gameObject.GetComponent<PressedButtonScript> ().i;
+				j_Button = hit.collider.gameObject.GetComponent<PressedButtonScript> ().j;
+			}
+
+			positionDeviationMouse = startPositionMouse - Input.mousePosition; //выясним куда свайпанули
+
+			if (Mathf.Abs (positionDeviationMouse[0]) > Mathf.Abs (positionDeviationMouse[1])) {
+				if (positionDeviationMouse[0] < 0) {
+					ChangeShapes (i_Button, j_Button + 1); //свайп вправо
+				} else {
+					ChangeShapes (i_Button, j_Button - 1); //свайп влево
+				}
+			} else {
+				if (positionDeviationMouse[1] < 0) {
+					ChangeShapes (i_Button - 1, j_Button); //свайпп вверх
+				} else {
+					ChangeShapes (i_Button + 1, j_Button); //свайп вниз
 				}
 			}
+			i_Button = matrixHeight;
+			j_Button = matrixWidth;
 		}
+
+
 	}
 
 	int CreateRandomNumWithException (int frm, int to, params int[] exc) {
@@ -251,9 +261,8 @@ public class GamePlayScript : MonoBehaviour {
 
 	private void mixField () {
 		int scorePR = 0;
-		int attempts = 0;
 
-		while (true) {
+		for(int a = 0; a < numberOfAttempts; a++) {
 			scorePR = 0;
 			GenerationField (fieldMatrix, matrixHeight, matrixWidth, numFigures);
 
@@ -264,9 +273,7 @@ public class GamePlayScript : MonoBehaviour {
 					}
 				}
 			}
-			attempts++;
 			if (scorePR > noLessPR) break;
-			if (200 > attempts) break;
 		}
 	}
 	private void TransferMatrixToScreen () {
@@ -290,57 +297,23 @@ public class GamePlayScript : MonoBehaviour {
 	}
 	private void ShowHint () {
 		int?[] checkPR;
-			for (int i = 0; i < matrixHeight; i++) {
-				for (int j = 0; j < matrixWidth; j++) {
-					checkPR = CheckPossibleRow (fieldMatrix, i, j);
+		for (int i = 0; i < matrixHeight; i++) {
+			for (int j = 0; j < matrixWidth; j++) {
+				checkPR = CheckPossibleRow (fieldMatrix, i, j);
 
-					if (checkPR != null) {
-						if (CreateRandomNumWithException (0, 4) == 0) {
-							objsFigures[i, j].GetComponent<Animation> ().Play ("HintAnim");
-							objsFigures[i + checkPR[0].Value, j + checkPR[1].Value].GetComponent<Animation> ().Play ("HintAnim");
-							objsFigures[i + checkPR[2].Value, j + checkPR[3].Value].GetComponent<Animation> ().Play ("HintAnim");
-							return;
-						}
+				if (checkPR != null) {
+					if (CreateRandomNumWithException (0, 4) == 0) {
+						objsFigures[i, j].GetComponent<Animation> ().Play ("HintAnim");
+						objsFigures[i + checkPR[0].Value, j + checkPR[1].Value].GetComponent<Animation> ().Play ("HintAnim");
+						objsFigures[i + checkPR[2].Value, j + checkPR[3].Value].GetComponent<Animation> ().Play ("HintAnim");
+						return;
 					}
 				}
 			}
+		}
 
 	}
 
-	private void LeftClick () {
-		if (Input.GetMouseButtonDown (0)) {
-			startPositionMouse = Input.mousePosition;
-		}
-		if (Input.GetMouseButtonUp (0)) {
-
-			ray = Camera.main.ScreenPointToRay (startPositionMouse);
-
-			if (Physics.Raycast (ray, out hit)) { //получим нажатый объект и ее индексы на матрице i j
-				i_Button = hit.collider.gameObject.GetComponent<PressedButtonScript> ().i;
-				j_Button = hit.collider.gameObject.GetComponent<PressedButtonScript> ().j;
-			}
-
-			positionDeviationMouse = startPositionMouse - Input.mousePosition; //выясним куда свайпанули
-
-			if (Mathf.Abs (positionDeviationMouse[0]) > Mathf.Abs (positionDeviationMouse[1])) {
-				if (positionDeviationMouse[0] < 0) {
-					ChangeShapes (i_Button, j_Button + 1); //свайп вправо
-				} else {
-					ChangeShapes (i_Button, j_Button - 1); //свайп влево
-				}
-			} else {
-				if (positionDeviationMouse[1] < 0) {
-					ChangeShapes (i_Button - 1, j_Button); //свайпп вверх
-				} else {
-					ChangeShapes (i_Button + 1, j_Button); //свайп вниз
-				}
-			}
-
-		}
-
-		i_Button = matrixHeight;
-		j_Button = matrixWidth;
-	}
 
 	private void ChangeShapes (int i, int j) {
 		if (CheckIndexRange (fieldMatrix, i_Button, j_Button) && CheckIndexRange (fieldMatrix, i, j)) {
@@ -349,13 +322,39 @@ public class GamePlayScript : MonoBehaviour {
 			fieldMatrix[i, j] = fieldMatrix[i_Button, j_Button];
 			fieldMatrix[i_Button, j_Button] = tempInt;
 
-			if (!DestroyMatchThree (fieldMatrix, removalMatrix, matrixHeight, matrixWidth)) {
+			if (!CheckDestroy ()) {
 				fieldMatrix[i_Button, j_Button] = fieldMatrix[i, j];
 				fieldMatrix[i, j] = tempInt;
+			} else {
+				while (CheckDestroy ());
 			}
+
 		}
 	}
+	private bool CheckDestroy () {
+		if (DestroyMatchThree (fieldMatrix, removalMatrix, matrixHeight, matrixWidth)) {
+			RaiseZeros (fieldMatrix, matrixHeight, matrixWidth);
+			scoreGame += AddFigures (fieldMatrix, matrixHeight, matrixWidth, numFigures, chancePR);
+			scoreText.text = "Score: " + scoreGame.ToString ();
+			TransferMatrixToScreen ();
 
+			if (scoreGame >= target) {
+				{
+					if (endGame) {
+						endGame = false;
+						SoundManagerScript.PlaySound ("applause");
+						finishGame.SetActive (true);
+						Time.timeScale = 0;
+						pauseButton.GetComponent<Button> ().enabled = false;
+						gameObject.GetComponent<GamePlayScript> ().enabled = false;
+					}
+				}
+			}
 
+			return true;
+		} else {
+			return false;
+		}
+	}
 
 }
